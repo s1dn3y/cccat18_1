@@ -67,8 +67,4 @@ app.post("/signup", async function (req, res) {
 	}
 });
 
-if (process.env.NODE_ENV !== 'test') {
-    app.listen(3000);
-}
-
-export default app;
+app.listen(3000);

@@ -1,88 +1,92 @@
-import app from "../src/signup";
+import app from '../src/signup';
 import request from 'supertest';
 import pgp from 'pg-promise';
 
 jest.mock('pg-promise');
 
-test("Não deve cadastrar novo usuário com nome inválido", async () => {
+test('Não deve cadastrar novo usuário com nome inválido', async () => {
     mockPgpQueryResult();
 
     const response = await request(app).post('/signup')
         .send({
-            name: "##$@ %%&&&",
+            name: '##$@ %%&&&',
         });
 
     expect(response.status).toBe(422);
     expect(response.body).toHaveProperty('message');
-    expect(response.body.message).toBe(-3);
+    expect(response.body.message).toBe('invalid name');
 });
 
-test("Não deve cadastrar novo usuário com email inválido", async () => {
+test('Não deve cadastrar novo usuário com email inválido', async () => {
     mockPgpQueryResult();
 
     const response = await request(app).post('/signup')
         .send({
-            name: "John Doe",
-            email: "johndoe...",
+            name: 'John Doe',
+            email: 'johndoe...',
         });
 
     expect(response.status).toBe(422);
     expect(response.body).toHaveProperty('message');
-    expect(response.body.message).toBe(-2);
+    expect(response.body.message).toBe('invalid email');
 });
 
-test("Não deve cadastrar novo usuário com CPF inválido", async () => {
+test('Não deve cadastrar novo usuário com CPF inválido', async () => {
     mockPgpQueryResult();
 
     const response = await request(app).post('/signup')
         .send({
-            name: "John Doe",
-            email: "johndoe@example.com",
-            cpf: "111.111.111-11",
+            name: 'John Doe',
+            email: 'johndoe@example.com',
+            cpf: '111.111.111-11',
         });
 
     expect(response.status).toBe(422);
     expect(response.body).toHaveProperty('message');
-    expect(response.body.message).toBe(-1);
+    expect(response.body.message).toBe('invalid cpf');
 });
 
-test("Não deve cadastrar usuário já cadastrado", async () => {
+test('Não deve cadastrar usuário já cadastrado', async () => {
     mockPgpQueryResult({
         queryResults: [
             [{
-                name: "Blah blah",
-                email: "blahe@bla.com",
+                name: 'Blah blah',
+                email: 'blahe@bla.com',
                 someOtherField: 'blah'
             }]
         ]
     });
 
     const response = await request(app).post('/signup')
-        .send("some content");
-
-    expect(response.status).toBe(422);
-    expect(response.body).toHaveProperty('message');
-    expect(response.body.message).toBe(-4);
-});
-
-test("Não deve cadastrar novo motorista com placa de carro inválida", async () => {
-    mockPgpQueryResult();
-
-    const response = await request(app).post('/signup')
         .send({
-            name: "John Doe",
-            email: "johndoe@example.com",
-            cpf: "123.456.789-09",
-            isDriver: true,
-            carPlate: "123#$%&",
+            name: 'John Doe',
+            email: 'johndoe@example.com',
+            cpf: '123.456.789-09',
         });
 
     expect(response.status).toBe(422);
     expect(response.body).toHaveProperty('message');
-    expect(response.body.message).toBe(-5);
+    expect(response.body.message).toBe('already exists');
 });
 
-test("Deve cadastrar novo motorista com placa de carro válida", async () => {
+test('Não deve cadastrar novo motorista com placa de carro inválida', async () => {
+    mockPgpQueryResult();
+
+    const response = await request(app).post('/signup')
+        .send({
+            name: 'John Doe',
+            email: 'johndoe@example.com',
+            cpf: '123.456.789-09',
+            isDriver: true,
+            carPlate: '123#$%&',
+        });
+
+    expect(response.status).toBe(422);
+    expect(response.body).toHaveProperty('message');
+    expect(response.body.message).toBe('invalid car plate');
+});
+
+test('Deve cadastrar novo motorista com placa de carro válida', async () => {
     mockPgpQueryResult({
         queryResults: [
             [],
@@ -91,11 +95,11 @@ test("Deve cadastrar novo motorista com placa de carro válida", async () => {
     });
 
     const response = await request(app).post('/signup').send({
-        name: "John Doe",
-        email: "johndoe@example.com",
-        cpf: "123.456.789-09",
+        name: 'John Doe',
+        email: 'johndoe@example.com',
+        cpf: '123.456.789-09',
         isDriver: true,
-        carPlate: "XYZ5678",
+        carPlate: 'XYZ5678',
     });
 
     expect(response.status).toBe(200);
@@ -103,7 +107,7 @@ test("Deve cadastrar novo motorista com placa de carro válida", async () => {
     expect(response.body.accountId).toMatch(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/);
 });
 
-test("Deve cadastrar novo passageiro com dados válidos", async () => {
+test('Deve cadastrar novo passageiro com dados válidos', async () => {
     mockPgpQueryResult({
         queryResults: [
             [],
@@ -112,9 +116,9 @@ test("Deve cadastrar novo passageiro com dados válidos", async () => {
     });
 
     const response = await request(app).post('/signup').send({
-        name: "John Doe",
-        email: "johndoe@example.com",
-        cpf: "123.456.789-09",
+        name: 'John Doe',
+        email: 'johndoe@example.com',
+        cpf: '123.456.789-09',
     });
 
     expect(response.status).toBe(200);

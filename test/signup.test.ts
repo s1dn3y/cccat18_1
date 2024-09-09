@@ -10,11 +10,13 @@ test('Não deve cadastrar novo usuário com nome inválido', async () => {
     const response = await request(app).post('/signup')
         .send({
             name: '##$@ %%&&&',
+            email: 'johndoe@example.com',
+            cpf: '123.456.789-09',
         });
 
     expect(response.status).toBe(422);
-    expect(response.body).toHaveProperty('message');
-    expect(response.body.message).toBe('invalid name');
+    expect(response.body).toHaveProperty('messages');
+    expect(response.body.messages).toContain('invalid name');
 });
 
 test('Não deve cadastrar novo usuário com email inválido', async () => {
@@ -24,11 +26,12 @@ test('Não deve cadastrar novo usuário com email inválido', async () => {
         .send({
             name: 'John Doe',
             email: 'johndoe...',
+            cpf: '123.456.789-09',
         });
 
     expect(response.status).toBe(422);
-    expect(response.body).toHaveProperty('message');
-    expect(response.body.message).toBe('invalid email');
+    expect(response.body).toHaveProperty('messages');
+    expect(response.body.messages).toContain('invalid email');
 });
 
 test('Não deve cadastrar novo usuário com CPF inválido', async () => {
@@ -42,8 +45,8 @@ test('Não deve cadastrar novo usuário com CPF inválido', async () => {
         });
 
     expect(response.status).toBe(422);
-    expect(response.body).toHaveProperty('message');
-    expect(response.body.message).toBe('invalid cpf');
+    expect(response.body).toHaveProperty('messages');
+    expect(response.body.messages).toContain('invalid cpf');
 });
 
 test('Não deve cadastrar usuário já cadastrado', async () => {
@@ -65,8 +68,8 @@ test('Não deve cadastrar usuário já cadastrado', async () => {
         });
 
     expect(response.status).toBe(422);
-    expect(response.body).toHaveProperty('message');
-    expect(response.body.message).toBe('already exists');
+    expect(response.body).toHaveProperty('messages');
+    expect(response.body.messages).toContain('already exists');
 });
 
 test('Não deve cadastrar novo motorista com placa de carro inválida', async () => {
@@ -82,8 +85,8 @@ test('Não deve cadastrar novo motorista com placa de carro inválida', async ()
         });
 
     expect(response.status).toBe(422);
-    expect(response.body).toHaveProperty('message');
-    expect(response.body.message).toBe('invalid car plate');
+    expect(response.body).toHaveProperty('messages');
+    expect(response.body.messages).toContain('invalid car plate');
 });
 
 test('Deve cadastrar novo motorista com placa de carro válida', async () => {
